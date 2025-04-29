@@ -29,28 +29,28 @@ def move_paddle(event, xpaddle, ypaddle):
         
     return xpaddle, ypaddle
 
-def bounce_ball(ball_x, ball_y, dx, dy, xpaddle, ypaddle):
+def bounce_ball(xball, yball, dx, dy, xpaddle, ypaddle):
     # Zgaszenie starej pozycji piłki
-    if 0 <= ball_x < 8 and 0 <= ball_y < 8:
-        sense.set_pixel(ball_x, ball_y, black)
+    if 0 <= xball < 8 and 0 <= yball < 8:
+        sense.set_pixel(xball, yball, black)
 
     # Przesunięcie piłki
-    ball_x += dx
-    ball_y += dy
+    xball += dx
+    yball += dy
 
     # Odbicie od góry / dołu
-    if ball_y < 0:
-        ball_y = 0
+    if yball < 0:
+        yball = 0
         dy = -dy
-    elif ball_y > 7:
-        ball_y = 7
+    elif yball > 7:
+        yball = 7
         dy = -dy
 
     # Sprawdzenie odbicia od paletki
-    if ball_x == xpaddle + 1:  # Bo paddle na lewo
-        if ball_y == ypaddle or ball_y == ypaddle + 1:
+    if xball == xpaddle + 1:  # Bo paddle na lewo
+        if yball == ypaddle or yball == ypaddle + 1:
             dx = -dx
-            dy = 1 if ball_y == ypaddle + 1 else -1
+            dy = 1 if yball == ypaddle + 1 else -1
         else:
             # KONIEC GRY
             sense.clear()
@@ -58,18 +58,18 @@ def bounce_ball(ball_x, ball_y, dx, dy, xpaddle, ypaddle):
             exit()
 
     # Odbicie od prawej krawędzi
-    elif ball_x > 7:
-        ball_x = 7
+    elif xball > 7:
+        xball = 7
         dx = -dx
-    elif ball_x < 0:
-        ball_x = 0
+    elif xball < 0:
+        xball = 0
         dx = -dx
 
     # Rysowanie piłki w nowym miejscu
-    if 0 <= ball_x < 8 and 0 <= ball_y < 8:
-        sense.set_pixel(ball_x, ball_y, ball_color)
+    if 0 <= xball < 8 and 0 <= yball< 8:
+        sense.set_pixel(xball, yball, ball_color)
 
-    return ball_x, ball_y, dx, dy
+    return xball, yball, dx, dy
 
 def new_game():
     sense.clear()
