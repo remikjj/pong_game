@@ -1,7 +1,14 @@
 from sense_emu import SenseHat
 import time
+import socket
 
 sense = SenseHat()
+
+#Połączenie UDP
+server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server.bind(("100.103.1.17", 5000)) # RP1 obiera tu dane
+
+client_address = ("100.103.1.192", 5001) # adrdes RP2
 
 # Kolory globalnie
 green = (0, 255, 0)
@@ -62,10 +69,14 @@ def bounce_ball(xball, yball, dx, dy, xpaddle, ypaddle):
             sense.show_message("GAME OVER", text_colour=(255, 0, 0))
             exit()
 
-    # Odbicie od prawej i lewej krawędzi
+    # Odbicie od prawej/lewej krawędzi
     elif xball > 7:
-        xball = 7
-        dx = -dx
+        #xball = 7
+        #dx = dx
+        data = f"{0},{yball},{dx},{dy}".encode() # ostania pozycja pilki na polu RP1
+        server.sendto(data, client_address)
+        xball = -1 # Ukrycie pilki z pola RP1
+        
     elif xball < 0:
         xball = 0
         dx = -dx
