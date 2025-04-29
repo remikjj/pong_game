@@ -53,11 +53,16 @@ def bounce_ball(xball, yball, dx, dy, xpaddle, ypaddle):
             dy = 1 if yball == ypaddle + 1 else -1
         else:
             # KONIEC GRY
+            sense.set_pixel(xball, yball, ball_color)
+            time.sleep(0.3)
+            sense.set_pixel(xball, yball, black)
+            sense.set_pixel(xball + dx, yball + dy, ball_color)
+            time.sleep(0.3)
             sense.clear()
             sense.show_message("GAME OVER", text_colour=(255, 0, 0))
             exit()
 
-    # Odbicie od prawej krawędzi
+    # Odbicie od prawej i lewej krawędzi
     elif xball > 7:
         xball = 7
         dx = -dx
