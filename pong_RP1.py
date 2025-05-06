@@ -7,9 +7,9 @@ sense = SenseHat()
 
 #Połączenie UDP
 server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-server.bind(("100.103.1.17", 5000)) # RP1 obiera tu dane
+server.bind(("100.103.1.17", 5000)) # RP1 odbiera tu dane
 
-client_address = ("100.103.1.192", 5001) # adrdes RP2
+client_address = ("100.103.1.192", 5001) # adres RP2
 
 # Kolory globalnie
 green = (0, 255, 0)
@@ -48,37 +48,17 @@ def bounce_ball(xball, yball, dx, dy, xpaddle, ypaddle):
             if dx == 1:
                 xball = 0 # RP2 odbiera z lewej
             elif dx == -1:
-                xball = 7 # odbiera z prawej
+                xball = 7 # RP1 odbiera z prawej
         except socket.timeout:
             return -1, -1, dx, dy
             
     else: # TRYB ROZGRYWKI - pilka znajduje sie na polu
-        if 0 <= xball <= 7 and 0 <= yball <= 7:
-            if xball == 7 and dx == 1: # Koniec pola - pora wyslac pilke
-                data = f"{0},{yball},{dx},{dy}".encode()
-                server.sendto(data, client_address)
-                sense.set_pixel(xball, yball, black)
-                xball = -1 # Pilka znika - przelaczenie w tryb nasluchu
-            else:
-                # Ruch pilki
-                sense.set_pixel(xball, yball, black)
-                xball += dx
-                yball += dy
-                
-                # Odbicie od gory/dolu
-                if yball < 0:
-                    yball = 0
-                    dy = -dy
-                elif yball > 7:
-                    yball = 7
-                    dy = -dy
-                        
-                # Sprawdzenie odbicia od paletki
-                if xball == xpaddle + 1:  # Bo paddle na lewo
-                    if yball == ypaddle or yball == ypaddle + 1:
-                        dx = -dx
-                        dy = 1 if yball == ypaddle + 1 else -1
-                    else:	# KONIEC GRY
+        # Sprawdzenie odbicia od paletki
+        if xball == xpaddle + 1:  # Bo paddle na lewo
+                if yball == ypaddle or yball == ypaddle + 1:
+                    dx = -dx
+                    dy = 1 if yball == ypaddle + 1 else -1
+                else:	# KONIEC GRY
                         sense.set_pixel(xball, yball, ball_color)
                         time.sleep(0.3)
                         sense.set_pixel(xball, yball, black)
@@ -87,7 +67,27 @@ def bounce_ball(xball, yball, dx, dy, xpaddle, ypaddle):
                         sense.clear()
                         sense.show_message("GAME OVER", text_colour=(255, 0, 0))
                         exit()
-                
+                                
+        # Ruch pilki
+        sense.set_pixel(xball, yball, black)
+        xball += dx
+        yball += dy
+        
+        # Odbicie od gory/dolu
+        if yball < 0:
+            yball = 0
+            dy = -dy
+        elif yball > 7:
+            yball = 7
+            dy = -dy
+                        
+                        
+        if 0 <= xball <= 7 and 0 <= yball <= 7:
+            if xball == 7 and dx == 1: # Koniec pola - pora wyslac pilke
+                data = f"{0},{yball},{dx},{dy}".encode()
+                server.sendto(data, client_address)
+                sense.set_pixel(xball, yball, black)
+                xball = -1 # Pilka znika - przelaczenie w tryb nasluchu
 
     # Rysowanie piłki w nowym miejscu
     if 0 <= xball < 8 and 0 <= yball< 8:
